@@ -592,93 +592,90 @@ namespace HtmlAgilityPack
 			{
 				switch (state)
 				{
-					case ParseState.Text:
-						switch (text[i])
-						{
-							case '&':
-								state = ParseState.EntityStart;
-								break;
-
-							default:
-								sb.Append(text[i]);
-								break;
-						}
+				case ParseState.Text:
+					switch (text[i])
+					{
+					case '&':
+						state = ParseState.EntityStart;
 						break;
 
-					case ParseState.EntityStart:
-						switch (text[i])
+					default:
+						sb.Append(text[i]);
+						break;
+					}
+					break;
+
+				case ParseState.EntityStart:
+					switch (text[i])
+					{
+					case ';':
+						if (entity.Length == 0)
 						{
-							case ';':
-								if (entity.Length == 0)
+							sb.Append("&;");
+						}
+						else
+						{
+							if (entity[0] == '#')
+							{
+								string e = entity.ToString();
+								try
 								{
-									sb.Append("&;");
-								}
-								else
-								{
-									if (entity[0] == '#')
+									string codeStr = e.Substring(1).Trim().ToLower();
+									int fromBase;
+									if (codeStr.StartsWith("x"))
 									{
-										string e = entity.ToString();
-										try
- 										{
-											string codeStr = e.Substring(1).Trim().ToLower();
-											int fromBase;
-											if (codeStr.StartsWith("x"))
-											{
-												fromBase = 16;
-												codeStr = codeStr.Substring(1);
-											}
-											else
-											{
-												fromBase = 10;
-											}
-											int code = Convert.ToInt32(codeStr, fromBase);
- 											sb.Append(Convert.ToChar(code));
- 										}
-										catch
-										{
-											sb.Append("&#" + e + ";");
-										}
+										fromBase = 16;
+										codeStr = codeStr.Substring(1);
 									}
 									else
 									{
-										// named entity?
-										int code;
-										object o = _entityValue[entity.ToString()];
-										if (o == null)
-										{
-											// nope
-											sb.Append("&" + entity + ";");
-										}
-										else
-										{
-											// we found one
-											code = (int) o;
-											sb.Append(Convert.ToChar(code));
-										}
+										fromBase = 10;
 									}
-									entity.Remove(0, entity.Length);
+									int code = Convert.ToInt32(codeStr, fromBase);
+									sb.Append(Convert.ToChar(code));
 								}
-								state = ParseState.Text;
-								break;
-
-							case '&':
-								// new entity start without end, it was not an entity...
-								sb.Append("&" + entity);
-								entity.Remove(0, entity.Length);
-								break;
-
-							default:
-								entity.Append(text[i]);
-								if (entity.Length > _maxEntitySize)
+								catch
 								{
-									// unknown stuff, just don't touch it
-									state = ParseState.Text;
-									sb.Append("&" + entity);
-									entity.Remove(0, entity.Length);
+									sb.Append("&#" + e + ";");
 								}
-								break;
+							}
+							else
+							{
+								// named entity?
+								int code;
+								if (!_entityValue.TryGetValue (entity.ToString (), out code))
+								{
+									// nope
+									sb.Append("&" + entity + ";");
+								}
+								else
+								{
+									sb.Append(Convert.ToChar(code));
+								}
+							}
+							entity.Remove(0, entity.Length);
+						}
+						state = ParseState.Text;
+						break;
+
+					case '&':
+						// new entity start without end, it was not an entity...
+						sb.Append("&" + entity);
+						entity.Remove(0, entity.Length);
+						break;
+
+					default:
+						entity.Append(text[i]);
+						if (entity.Length > _maxEntitySize)
+						{
+							// unknown stuff, just don't touch it
+							state = ParseState.Text;
+							sb.Append("&" + entity);
+							entity.Remove(0, entity.Length);
 						}
 						break;
+					}
+					break;
 				}
 			}
 
@@ -771,8 +768,8 @@ namespace HtmlAgilityPack
 				if ((code > 127) ||
 					(entitizeQuotAmpAndLtGt && ((code == 34) || (code == 38) || (code == 60) || (code == 62))))
 				{
-					string entity = _entityName[code] as string;
-					if ((entity == null) || (!useNames))
+					string entity;
+					if (!_entityName.TryGetValue (code, out entity) || (!useNames))
 					{
 						sb.Append("&#" + code + ";");
 					}

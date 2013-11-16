@@ -568,12 +568,10 @@ namespace HtmlAgilityPack
 				throw new ArgumentNullException("name");
 			}
 
-			object flag = ElementsFlags[name.ToLower()];
-			if (flag == null)
-			{
+			HtmlElementFlag flag;
+			if (!ElementsFlags.TryGetValue (name.ToLower (), out flag))
 				return false;
-			}
-			return (((HtmlElementFlag) flag) & HtmlElementFlag.CanOverlap) != 0;
+			return (flag & HtmlElementFlag.CanOverlap) != 0;
 		}
 
 		/// <summary>
@@ -601,12 +599,10 @@ namespace HtmlAgilityPack
 				throw new ArgumentNullException("name");
 			}
 
-			object flag = ElementsFlags[name.ToLower()];
-			if (flag == null)
-			{
+			HtmlElementFlag flag;
+			if (!ElementsFlags.TryGetValue (name.ToLower (), out flag))
 				return false;
-			}
-			return (((HtmlElementFlag) flag) & HtmlElementFlag.CData) != 0;
+			return (flag & HtmlElementFlag.CData) != 0;
 		}
 
 		/// <summary>
@@ -621,12 +617,10 @@ namespace HtmlAgilityPack
 				throw new ArgumentNullException("name");
 			}
 
-			object flag = ElementsFlags[name.ToLower()];
-			if (flag == null)
-			{
+			HtmlElementFlag flag;
+			if (!ElementsFlags.TryGetValue (name.ToLower (), out flag))
 				return false;
-			}
-			return (((HtmlElementFlag) flag) & HtmlElementFlag.Closed) != 0;
+			return (flag & HtmlElementFlag.Closed) != 0;
 		}
 
 		/// <summary>
@@ -658,12 +652,10 @@ namespace HtmlAgilityPack
 				return true;
 			}
 
-			object flag = ElementsFlags[name.ToLower()];
-			if (flag == null)
-			{
+			HtmlElementFlag flag;
+			if (!ElementsFlags.TryGetValue (name.ToLower (), out flag))
 				return false;
-			}
-			return (((HtmlElementFlag) flag) & HtmlElementFlag.Empty) != 0;
+			return (flag & HtmlElementFlag.Empty) != 0;
 		}
 
 		/// <summary>

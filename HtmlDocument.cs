@@ -500,7 +500,8 @@ namespace HtmlAgilityPack
 				throw new Exception(HtmlExceptionUseIdAttributeFalse);
 			}
 
-			return _nodesid[id.ToLower()] as HtmlNode;
+			HtmlNode result;
+			return _nodesid.TryGetValue (id.ToLower (), out result) ? result : null;
 		}
 
 		/// <summary>
@@ -841,8 +842,8 @@ namespace HtmlAgilityPack
 			bool error = false;
 
 			// find last node of this kind
-			HtmlNode prev = (HtmlNode)_lastnodes[_currentnode.Name];
-			if (prev == null)
+			HtmlNode prev;
+			if (!_lastnodes.TryGetValue (_currentnode.Name, out prev))
 			{
 				if (HtmlNode.IsClosedElement(_currentnode.Name))
 				{
@@ -995,8 +996,8 @@ namespace HtmlAgilityPack
 
 		private HtmlNode FindResetterNode(HtmlNode node, string name)
 		{
-			HtmlNode resetter = (HtmlNode)_lastnodes[name];
-			if (resetter == null)
+			HtmlNode resetter;
+			if (!_lastnodes.TryGetValue (name, out resetter))
 				return null;
 			if (resetter.Closed)
 			{
@@ -1033,8 +1034,7 @@ namespace HtmlAgilityPack
 			HtmlNode prev;
 
 			// if we find a previous unclosed same name node, without a resetter node between, we must close it
-			prev = (HtmlNode)_lastnodes[name];
-			if ((prev != null) && (!prev.Closed))
+			if (_lastnodes.TryGetValue (name, out prev) && (!prev.Closed))
 			{
 				// try to find a resetter node, if found, we do nothing
 				if (FindResetterNodes(prev, resetters))
@@ -1612,7 +1612,8 @@ namespace HtmlAgilityPack
 					ReadDocumentEncoding(_currentnode);
 
 					// remember last node of this kind
-					HtmlNode prev = (HtmlNode)_lastnodes[_currentnode.Name];
+					HtmlNode prev = null;
+					_lastnodes.TryGetValue (_currentnode.Name, out prev);
 					_currentnode._prevwithsamename = prev;
 					_lastnodes[_currentnode.Name] = _currentnode;
 
