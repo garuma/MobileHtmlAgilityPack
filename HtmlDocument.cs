@@ -843,7 +843,7 @@ namespace HtmlAgilityPack
 
 			// find last node of this kind
 			HtmlNode prev;
-			if (!_lastnodes.TryGetValue (_currentnode.Name, out prev))
+			if (!_lastnodes.TryGetValue (_currentnode.Name, out prev) || prev == null)
 			{
 				if (HtmlNode.IsClosedElement(_currentnode.Name))
 				{
@@ -997,7 +997,7 @@ namespace HtmlAgilityPack
 		private HtmlNode FindResetterNode(HtmlNode node, string name)
 		{
 			HtmlNode resetter;
-			if (!_lastnodes.TryGetValue (name, out resetter))
+			if (!_lastnodes.TryGetValue (name, out resetter) || resetter == null)
 				return null;
 			if (resetter.Closed)
 			{
@@ -1034,7 +1034,7 @@ namespace HtmlAgilityPack
 			HtmlNode prev;
 
 			// if we find a previous unclosed same name node, without a resetter node between, we must close it
-			if (_lastnodes.TryGetValue (name, out prev) && (!prev.Closed))
+			if (_lastnodes.TryGetValue (name, out prev) && prev != null && (!prev.Closed))
 			{
 				// try to find a resetter node, if found, we do nothing
 				if (FindResetterNodes(prev, resetters))

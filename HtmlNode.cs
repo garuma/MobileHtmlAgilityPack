@@ -1723,7 +1723,8 @@ namespace HtmlAgilityPack
 					_ownerdocument._openednodes.Remove(_outerstartindex);
 				}
 
-				HtmlNode self = _ownerdocument._lastnodes[Name] as HtmlNode;
+				HtmlNode self;
+				_ownerdocument._lastnodes.TryGetValue (Name, out self);
 				if (self == this)
 				{
 					_ownerdocument._lastnodes.Remove(Name);
